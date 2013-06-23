@@ -288,3 +288,29 @@ range a b
 -- Problem 23
 -- Problem 24
 -- Problem 25
+
+
+-- Problem 26
+
+comb :: Int -> [a] -> [[a]]
+comb n []     = []
+comb 1 (x:xs) = ([x]:comb 1 xs)
+comb n (x:xs) = (helper x (comb (n-1) xs)) ++ comb n xs
+  where
+    helper e x = map (\y -> (e:y)) x
+
+-- 1234
+--
+--   1      2    3  4
+-- 2 3 4   3 4   4
+--
+-- 12 13 14 23 24 34
+--
+--
+-- 1234
+--
+--     1     2
+--  2    3   3
+-- 3 4   4   4
+--
+-- 123 124 134 234
