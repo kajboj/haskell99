@@ -245,16 +245,9 @@ rotate' x n
 
 -- Problem 20
 
--- foo x = let
---           a = x
---         in
---           a * 2
-
 removeAt :: (Eq b, Num b) => b -> [a] -> (a, [a])
 removeAt n x = let
-                 s      = split x (n-1)
-                 before = fst s
-                 after  = snd s
+                 (before, after) = split x (n-1)
                in
                  (head after, before ++ tail after)
 
@@ -267,3 +260,31 @@ removeAt' n x
     helper 1 b  (e:es) = (e, b ++ es)
     helper n [] (e:es) = helper (n-1) [e]   es
     helper n b  (e:es) = helper (n-1) (b ++ [e]) es
+
+
+-- Problem 21
+
+insertAt :: a -> [a] -> Int -> [a]
+insertAt e x i = front ++ (e:back)
+  where
+    (front, back) = split x i
+
+insertAt' :: a -> [a] -> Int -> [a]
+insertAt' e []     n = [e]
+insertAt' e x      1 = (e:x)
+insertAt' e (x:xs) i = x:insertAt' e xs (i-1)
+
+
+-- Problem 22
+
+range :: Int -> Int -> [Int]
+range a b
+  | a == b = [a]
+  | a >  b = a : range (a-1) b
+  | a <  b = a : range (a+1) b
+
+
+-- I leave random selections for now
+-- Problem 23
+-- Problem 24
+-- Problem 25
