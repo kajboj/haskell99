@@ -295,9 +295,7 @@ range a b
 comb :: Int -> [a] -> [[a]]
 comb n []     = []
 comb 1 (x:xs) = ([x]:comb 1 xs)
-comb n (x:xs) = (helper x (comb (n-1) xs)) ++ comb n xs
-  where
-    helper e x = map (\y -> (e:y)) x
+comb n (x:xs) = (map (x:) (comb (n-1) xs)) ++ comb n xs
 
 -- 1234
 --
@@ -314,3 +312,24 @@ comb n (x:xs) = (helper x (comb (n-1) xs)) ++ comb n xs
 -- 3 4   4   4
 --
 -- 123 124 134 234
+
+
+-- Problem 27
+
+-- group [2,3,4] ["aldo","beat","carla","david","evi","flip","gary","hugo","ida"]
+-- [[["aldo","beat"],["carla","david","evi"],["flip","gary","hugo","ida"]],...]
+-- (altogether 1260 solutions)
+
+combr :: Int -> [a] -> [([a], [a])]
+combr 0 xs = [([], xs)]
+combr n [] = []
+combr n (x:xs) = with_x ++ without_x
+  where
+    with_x    = [((x:ys), rys) | (ys, rys) <- combr (n-1) xs]
+    without_x = [(zs, (x:rzs)) | (zs, rzs) <- combr n     xs]
+
+group :: [Int] -> [a] -> [[[a]]]
+group j@(i:is) xs
+  | sum j /= length xs = error "is /= length xs"
+  | null is = [[xs]]
+  | otherwise = [ c:g | (c, r) <- combr i xs, g <- group is r]
