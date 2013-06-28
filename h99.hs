@@ -333,3 +333,20 @@ group j@(i:is) xs
   | sum j /= length xs = error "is /= length xs"
   | null is = [[xs]]
   | otherwise = [ c:g | (c, r) <- combr i xs, g <- group is r]
+
+
+-- Problem 28
+
+-- lsort ["abc","de","fgh","de","ijkl","mn","o"]
+-- Prelude>["o","de","de","mn","abc","fgh","ijkl"]
+
+lsort :: [[a]] -> [[a]]
+lsort xs = quicksort (\l k -> (length l) >= (length k)) xs
+
+quicksort :: (a -> a -> Bool) -> [a] -> [a]
+quicksort c []     = []
+quicksort c (p:xs) = (quicksort c lesser) ++ [p] ++ (quicksort c greater)
+  where
+    lesser  = filter (c p) xs
+    greater = filter (not . c p) xs
+
