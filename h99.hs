@@ -350,3 +350,13 @@ quicksort c (p:xs) = (quicksort c lesser) ++ [p] ++ (quicksort c greater)
     lesser  = filter (c p) xs
     greater = filter (not . c p) xs
 
+freq :: (Eq b) => (a -> b) -> a -> [a] -> Int
+freq f e [] = 0
+freq f e (x:xs)
+  | f x == f e = 1 + freq f e xs
+  | otherwise  = freq f e xs
+
+lfsort :: [[a]] -> [[a]]
+lfsort xs = quicksort f xs
+  where
+    f x y = freq length x xs >= freq length y xs
