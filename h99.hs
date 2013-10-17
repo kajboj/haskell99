@@ -360,3 +360,18 @@ lfsort :: [[a]] -> [[a]]
 lfsort xs = quicksort f xs
   where
     f x y = freq length x xs >= freq length y xs
+
+
+-- Problem 31
+
+isPrime :: Integer -> Bool
+isPrime n = not $ or $ map (\i -> mod n i == 0) [2..n-1]
+
+sieve :: Integer -> [Bool]
+sieve n = foldr map (\_ -> True) [2..n]
+
+inner 2 $ map (\_ -> True) [2..n]
+
+mark n 1 (a:as) = (False:mark n n as)
+mark n i []     = []
+mark n i (a:as) = (a:mark n (i-1) as)
