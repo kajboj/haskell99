@@ -364,14 +364,12 @@ lfsort xs = quicksort f xs
 
 -- Problem 31
 
-isPrime :: Integer -> Bool
-isPrime n = not $ or $ map (\i -> mod n i == 0) [2..n-1]
+intSqrt :: Integer -> Integer
+intSqrt n = round $ sqrt $ fromIntegral n
 
-sieve :: Integer -> [Bool]
-sieve n = foldr map (\_ -> True) [2..n]
+naiveIsPrime :: Integer -> Bool
+naiveIsPrime n = not $ or $ map (\i -> mod n i == 0) [2..(intSqrt n)]
 
-inner 2 $ map (\_ -> True) [2..n]
-
-mark n 1 (a:as) = (False:mark n n as)
-mark n i []     = []
-mark n i (a:as) = (a:mark n (i-1) as)
+sieve :: [Integer] -> [Integer]
+sieve [] = []
+sieve (x:xs) = x:(sieve [y | y <- xs, mod y x /= 0])
