@@ -2,8 +2,14 @@ import Data.List
 
 data CodeTree = EmptyTree | Leaf (Char) (Int) | Fork (CodeTree) (CodeTree) [Char] (Int) deriving (Show, Eq)
 
+data Bit = Zero | One
+
 instance Ord CodeTree where
   compare x y = compare (weight x) (weight y)
+
+instance Show Bit where
+  show Zero = "0"
+  show One = "1"
 
 weight :: CodeTree -> Int
 weight (Leaf char weight) = weight
@@ -43,38 +49,33 @@ buildEncodingTree :: [Char] -> CodeTree
 buildEncodingTree [] = EmptyTree
 buildEncodingTree chars = head $ combine $ makeOrderedLeafList chars
 
-encodeChar :: CodeTree -> Char -> [Char]
+encodeChar :: CodeTree -> Char -> [Bit]
 encodeChar (Leaf c w) d = []
 encodeChar (Fork l r c w) d = if elem d (chars l)
-  then '0' : encodeChar l d
-  else '1' : encodeChar r d
+  then Zero : encodeChar l d
+  else One : encodeChar r d
 
-encodeString :: CodeTree -> [Char] -> [Char]
+encodeString :: CodeTree -> [Char] -> [Bit]
 encodeString tree string = foldl1 (++) $ map encode string
   where
     encode = encodeChar $ tree
 
-encode :: [Char] -> ([Char], CodeTree)
+encode :: [Char] -> ([Bit], CodeTree)
 encode string = (encodeString codeTree string, codeTree)
   where
     codeTree = buildEncodingTree string
 
-decodeChar :: CodeTree -> [Char] -> (Char, [Char])
+decodeChar :: CodeTree -> [Bit] -> (Char, [Bit])
 decodeChar (Leaf c w) bits = (c, bits)
-decodeChar (Fork l r c w) (bit:bits) = if bit == '0'
-  then decodeChar l bits
-  else decodeChar r bits
+decodeChar (Fork l r c w) (Zero:bits) = decodeChar l bits
+decodeChar (Fork l r c w) (One:bits) = decodeChar l bits
 
-decodeString :: CodeTree -> [Char] -> [Char]
+decodeString :: CodeTree -> [Bit] -> [Char]
 decodeString tree [] = []
 decodeString tree bits = char : decodeString tree bitsAfter
   where
     (char, bitsAfter) = decodeChar tree bits
 
 
-
-
-
 -- what happens with message "aaa"?
 -- handle error when encoding tree does not contain char
--- Bit data type
