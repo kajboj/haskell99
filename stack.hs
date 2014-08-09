@@ -9,21 +9,21 @@ maxSeqLength = 5
 
 isApplicable' :: Operator -> Int -> Bool
 isApplicable' op length = case op of 
-  Drop -> length > 0
-  Dup  -> length > 0
-  Nip  -> length > 1
-  Over -> length > 1
-  Tuck -> length > 1
-  Swap -> length > 1
-  Rot  -> length > 2
-  MRot -> length > 2
-  Drop2 -> length > 1
-  Nip2 -> length > 3
-  Dup2 -> length > 1
-  Over2 -> length > 3
-  Tuck2 -> length > 3
-  Swap2 -> length > 3
-  Rot2 -> length > 5
+  Drop  -> length >= 1
+  Dup   -> length >= 1
+  Nip   -> length >= 2
+  Over  -> length >= 2
+  Tuck  -> length >= 2
+  Swap  -> length >= 2
+  Rot   -> length >= 3
+  MRot  -> length >= 3
+  Drop2 -> length >= 2
+  Nip2  -> length >= 4
+  Dup2  -> length >= 2
+  Over2 -> length >= 4
+  Tuck2 -> length >= 4
+  Swap2 -> length >= 4
+  Rot2  -> length >= 6
 
 apply :: Operator -> [Char] -> [Char]
 apply Drop (x:xs) = xs
