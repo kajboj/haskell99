@@ -1,71 +1,73 @@
 import qualified Data.List
 
+type Stack = [Char]
+
 data Operator = Drop | Nip | Over | Dup | Tuck | Swap | Rot |
   MRot | Drop2 | Nip2 | Dup2 | Over2 | Tuck2 | Swap2 | Rot2 deriving Show
 
+type Sequence = [Operator]
+
 ops = [Drop, Nip, Over, Dup, Tuck, Swap, Rot, MRot, Drop2, Nip2,
   Dup2, Over2, Tuck2, Swap2, Rot2]
-maxSeqLength = 5 
 
-isApplicable' :: Operator -> Int -> Bool
-isApplicable' op length = case op of 
-  Drop  -> length >= 1
-  Dup   -> length >= 1
-  Nip   -> length >= 2
-  Over  -> length >= 2
-  Tuck  -> length >= 2
-  Swap  -> length >= 2
-  Rot   -> length >= 3
-  MRot  -> length >= 3
-  Drop2 -> length >= 2
-  Nip2  -> length >= 4
-  Dup2  -> length >= 2
-  Over2 -> length >= 4
-  Tuck2 -> length >= 4
-  Swap2 -> length >= 4
-  Rot2  -> length >= 6
+maxSeqLength = 5
 
-apply :: Operator -> [Char] -> [Char]
-apply Drop (x:xs) = xs
-apply Nip (x1:x2:xs) = (x1:xs)
-apply Over (x1:x2:xs) = (x2:x1:x2:xs)
-apply Dup (x:xs) = (x:x:xs)
-apply Tuck (x1:x2:xs) = (x1:x2:x1:xs)
-apply Swap (x1:x2:xs) = (x2:x1:xs)
-apply Rot (x1:x2:x3:xs) = (x3:x1:x2:xs)
-apply MRot (x1:x2:x3:xs) = (x2:x3:x1:xs)
-apply Drop2 (x1:x2:xs) = xs
-apply Nip2 (x1:x2:x3:x4:xs) = (x1:x2:xs)
-apply Dup2 (x1:x2:xs) = (x1:x2:x1:x2:xs)
-apply Over2 (x1:x2:x3:x4:xs) = (x3:x4:x1:x2:x3:x4:xs)
-apply Tuck2 (x1:x2:x3:x4:xs) = (x1:x2:x3:x4:x1:x2:xs)
-apply Swap2 (x1:x2:x3:x4:xs) = (x3:x4:x1:x2:xs)
-apply Rot2 (x1:x2:x3:x4:x5:x6:xs) = (x5:x6:x1:x2:x3:x4:xs)
+apply :: Operator -> Stack -> Maybe Stack
+apply Drop (x:xs) = Just xs
+apply Drop x = Nothing
+apply Nip (x1:x2:xs) = Just (x1:xs)
+apply Nip x = Nothing
+apply Over (x1:x2:xs) = Just (x2:x1:x2:xs)
+apply Over x = Nothing
+apply Dup (x:xs) = Just (x:x:xs)
+apply Dup x = Nothing
+apply Tuck (x1:x2:xs) = Just (x1:x2:x1:xs)
+apply Tuck x = Nothing
+apply Swap (x1:x2:xs) = Just (x2:x1:xs)
+apply Swap x = Nothing
+apply Rot (x1:x2:x3:xs) = Just (x3:x1:x2:xs)
+apply Rot x = Nothing
+apply MRot (x1:x2:x3:xs) = Just (x2:x3:x1:xs)
+apply MRot x = Nothing
+apply Drop2 (x1:x2:xs) = Just xs
+apply Drop2 x = Nothing
+apply Nip2 (x1:x2:x3:x4:xs) = Just (x1:x2:xs)
+apply Nip2 x = Nothing
+apply Dup2 (x1:x2:xs) = Just (x1:x2:x1:x2:xs)
+apply Dup2 x = Nothing
+apply Over2 (x1:x2:x3:x4:xs) = Just (x3:x4:x1:x2:x3:x4:xs)
+apply Over2 x = Nothing
+apply Tuck2 (x1:x2:x3:x4:xs) = Just (x1:x2:x3:x4:x1:x2:xs)
+apply Tuck2 x = Nothing
+apply Swap2 (x1:x2:x3:x4:xs) = Just (x3:x4:x1:x2:xs)
+apply Swap2 x = Nothing
+apply Rot2 (x1:x2:x3:x4:x5:x6:xs) = Just (x5:x6:x1:x2:x3:x4:xs)
+apply Rot2 x = Nothing
 
-isApplicable :: Operator -> [Char] -> Bool
-isApplicable op stack = isApplicable' op (length stack)
-
-seqs :: Int -> [[Operator]]
+seqs :: Int -> [Sequence]
 seqs 0 = [[]]
 seqs n = [(x:y) | x <- ops, y <- seqs $ n-1]
 
-applySeq :: [Operator] -> [Char] -> [Char]
-applySeq ops stack = foldl (flip apply) stack ops
-
-isSeqApplicable :: [Operator] -> [Char] -> Bool
-isSeqApplicable [] stack = True
-isSeqApplicable (op:ops) stack =
-  (isApplicable op stack) && (isSeqApplicable ops (apply op stack))
-
-allSeqs :: [[[Operator]]]
+allSeqs :: [[Sequence]]
 allSeqs = map seqs [0..maxSeqLength] 
 
-allAnswers :: [[[Operator]]] -> [Char] -> [Char] -> Maybe [[Operator]]
-allAnswers allSeqs input output =
-  Data.List.find (not . null) (map satisfying allSeqs)
-    where
-      satisfying seqs = filter (\seq -> (applicable seq) && (correct seq)) seqs
-        where
-          applicable seq = isSeqApplicable seq input
-          correct seq = applySeq seq input == output
+applySeq :: Sequence -> Maybe Stack -> Maybe Stack
+applySeq [] stack = stack
+applySeq _ Nothing = Nothing
+applySeq (op:ops) (Just stack) = applySeq ops (apply op stack)
 
+correctSeqs :: [Sequence] -> Stack -> Stack -> [Sequence]
+correctSeqs [] _ _ = []
+correctSeqs (seq:seqs) input output = case applySeq seq (Just input) of
+  Nothing -> rest
+  Just stack -> if stack == output
+    then (seq:rest)
+    else rest
+  where
+    rest = correctSeqs seqs input output
+
+allAnswers :: [[Sequence]] -> Stack -> Stack -> Maybe [Sequence]
+allAnswers allSeqs input output =
+  Data.List.find (not . null) (map correct allSeqs)
+    where
+      correct seqs = correctSeqs seqs input output
