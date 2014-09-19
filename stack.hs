@@ -32,8 +32,7 @@ apply Rot2 (x1:x2:x3:x4:x5:x6:xs) = Just (x5:x6:x1:x2:x3:x4:xs)
 apply _ _ = Nothing
 
 seqs :: Int -> [Sequence]
-seqs 0 = [[]]
-seqs n = [(x:y) | x <- ops, y <- seqs $ n-1]
+seqs n = sequence $ replicate n ops
 
 allSeqs :: [[Sequence]]
 allSeqs = map seqs [0..maxSeqLength] 
