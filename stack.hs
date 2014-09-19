@@ -52,20 +52,15 @@ seqs n = [(x:y) | x <- ops, y <- seqs $ n-1]
 allSeqs :: [[Sequence]]
 allSeqs = map seqs [0..maxSeqLength] 
 
-applySeq :: Sequence -> Maybe Stack -> Maybe Stack
-applySeq [] stack = stack
-applySeq _ Nothing = Nothing
-applySeq (op:ops) (Just stack) = applySeq ops (apply op stack)
+applySeq :: Sequence -> Stack -> Maybe Stack
+applySeq seq stack = foldl (>>=) (return stack) (map apply seq)
 
 correctSeqs :: [Sequence] -> Stack -> Stack -> [Sequence]
-correctSeqs [] _ _ = []
-correctSeqs (seq:seqs) input output = case applySeq seq (Just input) of
-  Nothing -> rest
-  Just stack -> if stack == output
-    then (seq:rest)
-    else rest
+correctSeqs seqs input output = filter correct seqs
   where
-    rest = correctSeqs seqs input output
+    correct seq = case applySeq seq input of
+      Nothing -> False
+      Just stack -> stack == output
 
 allAnswers :: [[Sequence]] -> Stack -> Stack -> Maybe [Sequence]
 allAnswers allSeqs input output =
@@ -75,4 +70,4 @@ allAnswers allSeqs input output =
 
 main :: IO ()
 main = do
-  putStrLn . show $ allAnswers allSeqs "abc" "cbac"
+  putStrLn . show $ allAnswers allSeqs "abc" "cba"
