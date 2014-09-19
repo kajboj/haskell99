@@ -1,3 +1,4 @@
+import Prelude
 import qualified Data.List
 
 type Stack = [Char]
@@ -71,3 +72,7 @@ allAnswers allSeqs input output =
   Data.List.find (not . null) (map correct allSeqs)
     where
       correct seqs = correctSeqs seqs input output
+
+main :: IO ()
+main = do
+  putStrLn . show $ allAnswers allSeqs "abc" "cbac"
