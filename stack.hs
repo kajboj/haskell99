@@ -1,5 +1,6 @@
 import Prelude
 import qualified Data.List
+import Control.Monad
 
 type Stack = [Char]
 
@@ -37,13 +38,13 @@ seqs n = sequence $ replicate n ops
 allSeqs :: [[Sequence]]
 allSeqs = map seqs [0..maxSeqLength] 
 
-applySeq :: Sequence -> Stack -> Maybe Stack
-applySeq seq stack = foldl (>>=) (return stack) (map apply seq)
+applySeq :: Stack -> Sequence -> Maybe Stack
+applySeq = foldM $ flip apply
 
 correctSeqs :: [Sequence] -> Stack -> Stack -> [Sequence]
 correctSeqs seqs input output = filter correct seqs
   where
-    correct seq = case applySeq seq input of
+    correct seq = case applySeq input seq of
       Nothing -> False
       Just stack -> stack == output
 
