@@ -5,7 +5,8 @@ import Control.Concurrent
 
 main :: IO ()
 main = do
-  handle <- openSerial "/dev/ttyUSB0" B9600 8 One Even Software
+  --handle <- openSerial "/dev/ttyUSB0" B9600 8 One Even Software
+  handle <- openSerial "/dev/ttyACM0" B9600 8 One NoParity Software
   putStrLn "waiting"
   threadDelay 2000000
   putStrLn "done waiting"
